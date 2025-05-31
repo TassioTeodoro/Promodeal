@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "3095398963",
+    "project_id": "promodeal-a9c6c",
+    "storage_bucket": "promodeal-a9c6c.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:3095398963:android:52f7f2c8203be8519fb146",
+        "android_client_info": {
+          "package_name": "com.example.promodeal"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBQzZkCkPFa4RmAL7Z_fcHALkvl_0G89so"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:3095398963:android:4ba9f02db36f48af9fb146",
+        "android_client_info": {
+          "package_name": "com.unigran.promodeal"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBQzZkCkPFa4RmAL7Z_fcHALkvl_0G89so"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
