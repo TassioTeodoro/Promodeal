@@ -1,6 +1,4 @@
-# Vamos criar o arquivo README.md com as informações solicitadas
-
-readme_content = """# 📱 PromoDeal
+# 📱 PromoDeal
 
 **PromoDeal** é um aplicativo desenvolvido em Flutter que permite a divulgação e o gerenciamento de promoções de forma simples e interativa.  
 A plataforma conecta **comerciantes** e **clientes** em um único ambiente, permitindo cadastrar promoções, visualizar ofertas ativas e interagir através de comentários.
