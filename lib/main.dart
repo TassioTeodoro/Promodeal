@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:promodeal/debug/test.dart';
+import 'package:promodeal/views/login_screen.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 Future<void> main() async {
@@ -18,7 +18,7 @@ class MainApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const MaterialApp(
-      home: TestScreen(),
+      home: LoginScreen(),
     );
   }
 }
