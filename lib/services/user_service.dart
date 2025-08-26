@@ -32,4 +32,21 @@ class UserService {
   Future<void> deletarUsuario(String id) async {
     await SupabaseService.client.from(_table).delete().eq('id', id);
   }
+
+  Future<AppUser?> getCurrentUser() async {
+    final session = SupabaseService.client.auth.currentSession;
+    final userAuth = session?.user;
+    if (userAuth == null) return null;
+
+    final response = await SupabaseService.client
+        .from(_table)
+        .select()
+        .eq('id', userAuth.id)
+        .maybeSingle();
+
+    if (response != null) {
+      return AppUser.fromMap(response);
+    }
+    return null;
+  }
 }

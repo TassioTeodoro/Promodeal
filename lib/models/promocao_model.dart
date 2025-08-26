@@ -8,6 +8,8 @@ class Promocao {
   final String comercianteId;
   final DateTime dataCriacao;
   final DateTime? dataAgendamento;
+  final DateTime startAt;
+  final DateTime endAt;
   final String imagemUrl;
 
   Promocao({
@@ -18,9 +20,13 @@ class Promocao {
     required this.desconto,
     required this.comercianteId,
     required this.dataCriacao,
+    required this.startAt,
+    required this.endAt,
     this.dataAgendamento,
     required this.imagemUrl,
   });
+
+  double get finalPrice => preco * (1 - (desconto / 100));
 
   factory Promocao.fromMap(Map<String, dynamic> map) {
     return Promocao(
@@ -34,6 +40,8 @@ class Promocao {
       dataAgendamento: map['data_agendamento'] != null
           ? DateTime.parse(map['data_agendamento'])
           : null,
+      startAt: DateTime.parse(map['start_at']),
+      endAt: DateTime.parse(map['end_at']),
       imagemUrl: map['imagem_url'] ?? '',
     );
   }
@@ -48,6 +56,8 @@ class Promocao {
       'comerciante_id': comercianteId,
       'data_criacao': dataCriacao.toIso8601String(),
       'data_agendamento': dataAgendamento?.toIso8601String(),
+      'start_at': startAt.toIso8601String(),
+      'end_at': endAt.toIso8601String(),
       'imagem_url': imagemUrl,
     };
   }
