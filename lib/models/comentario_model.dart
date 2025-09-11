@@ -1,36 +1,35 @@
-// lib/models/comentario_model.dart
 class Comentario {
-  final String id;
-  final String promocaoId;
-  final String usuarioId;
-  final String texto;
-  final DateTime dataComentario;
+  final String? id;
+  final String idUsuario;
+  final String idPromocao;
+  final String conteudo;
+  final DateTime createdAt;
 
   Comentario({
-    required this.id,
-    required this.promocaoId,
-    required this.usuarioId,
-    required this.texto,
-    required this.dataComentario,
-  });
+    this.id,
+    required this.idUsuario,
+    required this.idPromocao,
+    required this.conteudo,
+    DateTime? createdAt,
+  }) : createdAt = createdAt ?? DateTime.now();
 
   factory Comentario.fromMap(Map<String, dynamic> map) {
     return Comentario(
-      id: map['id'] ?? '',
-      promocaoId: map['promocao_id'] ?? '',
-      usuarioId: map['usuario_id'] ?? '',
-      texto: map['texto'] ?? '',
-      dataComentario: DateTime.parse(map['data_comentario']),
+      id: map['id'] as String?,
+      idUsuario: map['usuario_id'] as String,
+      idPromocao: map['promocao_id'] as String,
+      conteudo: map['texto'] as String,
+      createdAt: DateTime.parse(map['data_comentario']),
     );
   }
 
   Map<String, dynamic> toMap() {
     return {
       'id': id,
-      'promocao_id': promocaoId,
-      'usuario_id': usuarioId,
-      'texto': texto,
-      'data_comentario': dataComentario.toIso8601String(),
+      'usuario_id': idUsuario,
+      'promocao_id': idPromocao,
+      'texto': conteudo,
+      'data_comentario': createdAt.toIso8601String(),
     };
   }
 }

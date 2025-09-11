@@ -1,54 +1,53 @@
-// lib/models/promocao_model.dart
 class Promocao {
-  final String id;
-  final String titulo;
+  final String? id;
+  final String idUsuario;
   final String descricao;
-  final double preco;
-  final double desconto; // percentual
-  final String comercianteId;
-  final DateTime dataCriacao;
-  final DateTime? dataAgendamento;
-  final String imagemUrl;
+  final double precoDe;
+  final double precoPor;
+  final List<String> tags;
+  final DateTime? dataPublicacao;
+  final String? imagemUrl;      // se quiser manter anexos adicionais
+  final int likes;
 
   Promocao({
-    required this.id,
-    required this.titulo,
+    this.id,
+    required this.idUsuario,
     required this.descricao,
-    required this.preco,
-    required this.desconto,
-    required this.comercianteId,
-    required this.dataCriacao,
-    this.dataAgendamento,
-    required this.imagemUrl,
+    required this.precoDe,
+    required this.precoPor,
+    required this.tags,
+    this.dataPublicacao,
+    this.imagemUrl,
+    this.likes = 0,
   });
 
   factory Promocao.fromMap(Map<String, dynamic> map) {
     return Promocao(
-      id: map['id'] ?? '',
-      titulo: map['titulo'] ?? '',
-      descricao: map['descricao'] ?? '',
-      preco: (map['preco'] ?? 0).toDouble(),
-      desconto: (map['desconto'] ?? 0).toDouble(),
-      comercianteId: map['comerciante_id'] ?? '',
-      dataCriacao: DateTime.parse(map['data_criacao']),
-      dataAgendamento: map['data_agendamento'] != null
-          ? DateTime.parse(map['data_agendamento'])
+      id: map['id'] as String?,
+      idUsuario: map['id_usuario'] as String,
+      descricao: map['descricao'] as String,
+      precoDe: (map['preco_de'] as num).toDouble(),
+      precoPor: (map['preco_por'] as num).toDouble(),
+      tags: (map['tags'] as List<dynamic>).map((e) => e.toString()).toList(),
+      dataPublicacao: map['data_publicacao'] != null
+          ? DateTime.parse(map['data_publicacao'])
           : null,
-      imagemUrl: map['imagem_url'] ?? '',
+      imagemUrl: map['imagem_url'] as String?,
+      likes: map['likes'] != null ? (map['likes'] as int) : 0,
     );
   }
 
   Map<String, dynamic> toMap() {
     return {
       'id': id,
-      'titulo': titulo,
+      'id_usuario': idUsuario,
       'descricao': descricao,
-      'preco': preco,
-      'desconto': desconto,
-      'comerciante_id': comercianteId,
-      'data_criacao': dataCriacao.toIso8601String(),
-      'data_agendamento': dataAgendamento?.toIso8601String(),
+      'preco_de': precoDe,
+      'preco_por': precoPor,
+      'tags': tags,
+      'data_publicacao': dataPublicacao?.toIso8601String(),
       'imagem_url': imagemUrl,
+      'likes': likes,
     };
   }
 }

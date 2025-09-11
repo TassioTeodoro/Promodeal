@@ -6,6 +6,7 @@ class AppUser {
   final bool isComerciante;
   final String? cnpj;
   final String? endereco;
+  final String? bio;
 
   AppUser({
     required this.id,
@@ -14,6 +15,7 @@ class AppUser {
     required this.isComerciante,
     this.cnpj,
     this.endereco,
+    this.bio
   });
 
   factory AppUser.fromMap(Map<String, dynamic> map) {
@@ -24,6 +26,7 @@ class AppUser {
       isComerciante: map['is_comerciante'] ?? false,
       cnpj: map['cnpj'],
       endereco: map['endereco'],
+      bio: map['bio']
     );
   }
 
@@ -35,6 +38,7 @@ class AppUser {
       'is_comerciante': isComerciante,
       'cnpj': cnpj,
       'endereco': endereco,
+      'bio':bio
     };
   }
 }

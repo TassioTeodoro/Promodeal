@@ -1,6 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:promodeal/services/promocao_service.dart';
+import 'package:promodeal/views/subviews/account_screen.dart';
+import 'package:promodeal/views/subviews/post_detail_screen.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class PostCard extends StatefulWidget {
+  final String idUsuario;
+  final String idPromocao;
   final String loja;
   final String data;
   final String local;
@@ -8,10 +14,12 @@ class PostCard extends StatefulWidget {
   final double precoDe;
   final double precoPor;
   final List<String> tags;
-  final String? fotoPerfilUrl; // nova: foto do comerciante
+  final String? fotoPerfilUrl;
+  final String? fotoDaPromo;
 
   const PostCard({
     super.key,
+    required this.idPromocao,
     required this.loja,
     required this.data,
     required this.local,
@@ -19,7 +27,9 @@ class PostCard extends StatefulWidget {
     required this.precoDe,
     required this.precoPor,
     required this.tags,
+    required this.idUsuario,
     this.fotoPerfilUrl,
+    this.fotoDaPromo,
   });
 
   @override
@@ -27,41 +37,109 @@ class PostCard extends StatefulWidget {
 }
 
 class _PostCardState extends State<PostCard> {
-  bool _curtiu = false;
+  final _promoService = PromocaoService();
   int _likes = 0;
+  bool _curtiu = false;
+  final user = Supabase.instance.client.auth.currentUser;
 
-  void _toggleLike() {
+  @override
+  void initState() {
+    super.initState();
+    _carregarLikes();
+  }
+
+  Future<void> _carregarLikes() async {
+    if (user == null) return;
+
+    final count = await _promoService.contarLikes(widget.idPromocao);
+    final curtiu = await _promoService.usuarioCurtiu(
+      widget.idPromocao,
+      user!.id,
+    );
+
     setState(() {
-      _curtiu = !_curtiu;
-      _likes += _curtiu ? 1 : -1;
+      _likes = count;
+      _curtiu = curtiu;
     });
+  }
+
+  Future<void> _toggleLike() async {
+    if (user == null) return;
+
+    if (_curtiu) {
+      await _promoService.removerLike(widget.idPromocao, user!.id);
+    } else {
+      await _promoService.darLike(widget.idPromocao, user!.id);
+    }
+
+    _carregarLikes(); // 🔹 recarrega likes e estado do botão
+  }
+
+  void _abrirComentarios() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => PostDetailScreen(
+          idPromocao: widget.idPromocao,
+          loja: widget.loja,
+          data: widget.data,
+          local: widget.local,
+          descricao: widget.descricao,
+          precoDe: widget.precoDe,
+          precoPor: widget.precoPor,
+          tags: widget.tags,
+          fotoPerfilUrl: widget.fotoPerfilUrl,
+          fotoDaPromo: widget.fotoDaPromo,
+          likes: _likes,
+        ),
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      elevation: 2,
+      margin: const EdgeInsets.symmetric(vertical: 8),
       child: Padding(
         padding: const EdgeInsets.all(12),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Header com foto + loja + botão seguir
+            // Header
             Row(
               children: [
-                CircleAvatar(
-                  radius: 20,
-                  backgroundImage: widget.fotoPerfilUrl != null
-                      ? NetworkImage(widget.fotoPerfilUrl!)
-                      : null,
-                  backgroundColor: Colors.grey[400],
-                  child: widget.fotoPerfilUrl == null
-                      ? const Icon(Icons.store, color: Colors.white)
-                      : null,
+                GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) =>
+                            ProfileScreen(idUsuario: widget.idUsuario),
+                        // 🔹 aqui ajuste para usar o idUsuario da promoção em vez do idPromocao
+                      ),
+                    );
+                  },
+                  child: CircleAvatar(
+                    backgroundColor: Colors.grey[400],
+                    backgroundImage: widget.fotoPerfilUrl != null
+                        ? NetworkImage(widget.fotoPerfilUrl!)
+                        : null,
+                    child: widget.fotoPerfilUrl == null
+                        ? const Icon(Icons.store, color: Colors.white)
+                        : null,
+                  ),
                 ),
-                const SizedBox(width: 10),
-                Expanded(
+                const SizedBox(width: 8),
+                GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) =>
+                            ProfileScreen(idUsuario: widget.idPromocao),
+                      ),
+                    );
+                  },
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -73,80 +151,74 @@ class _PostCardState extends State<PostCard> {
                         ),
                       ),
                       Text(
-                        "${widget.data}  •  ${widget.local}",
-                        style: const TextStyle(
-                          color: Colors.grey,
-                          fontSize: 12,
-                        ),
+                        widget.data,
+                        style: const TextStyle(color: Colors.grey),
                       ),
                     ],
                   ),
                 ),
-                TextButton(
-                  onPressed: () {},
-                  style: TextButton.styleFrom(
-                    foregroundColor: Colors.green,
-                    side: const BorderSide(color: Colors.green),
-                  ),
-                  child: const Text("+ Seguir"),
-                ),
+                const Spacer(),
+                Text(widget.local, style: const TextStyle(color: Colors.grey)),
               ],
             ),
 
+            // Descrição
+            Text(widget.descricao),
             const SizedBox(height: 8),
-            Text(widget.descricao, style: const TextStyle(fontSize: 14)),
-            const SizedBox(height: 8),
+
+            // 🔹 Foto da promoção (se existir)
+            if (widget.fotoDaPromo != null && widget.fotoDaPromo!.isNotEmpty)
+              ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: Image.network(
+                  widget.fotoDaPromo!,
+                  fit: BoxFit.cover,
+                  width: double.infinity,
+                  height: 180,
+                ),
+              ),
+            if (widget.fotoDaPromo != null && widget.fotoDaPromo!.isNotEmpty)
+              const SizedBox(height: 8),
 
             // Tags
             Wrap(
               spacing: 6,
-              children: widget.tags.map((t) {
-                return Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 6,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.green.shade600,
-                    borderRadius: BorderRadius.circular(30), // pill shape
-                  ),
-                  child: Text(
-                    t,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
+              children: widget.tags
+                  .map(
+                    (t) => Chip(
+                      label: Text(
+                        t,
+                        style: const TextStyle(color: Colors.white),
+                      ),
+                      backgroundColor: Colors.green,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
                     ),
-                  ),
-                );
-              }).toList(),
+                  )
+                  .toList(),
             ),
             const SizedBox(height: 8),
 
-            // Placeholder imagem
-            Container(
-              height: 150,
-              color: Colors.grey[300],
-              alignment: Alignment.center,
-              child: const Text("Imagem do Post"),
-            ),
-            const SizedBox(height: 8),
-
-            // Preços
+            // Preço
             Row(
               children: [
                 Expanded(
                   child: Container(
-                    padding: const EdgeInsets.all(8),
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 6,
+                      horizontal: 10,
+                    ),
                     decoration: BoxDecoration(
                       color: Colors.green,
-                      borderRadius: BorderRadius.circular(6),
+                      border: Border.all(color: Colors.green),
+                      borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
                       "De: R\$${widget.precoDe.toStringAsFixed(2)}",
                       style: const TextStyle(
-                        color: Colors.white,
                         decoration: TextDecoration.lineThrough,
+                        color: Colors.white,
                       ),
                     ),
                   ),
@@ -154,26 +226,29 @@ class _PostCardState extends State<PostCard> {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Container(
-                    padding: const EdgeInsets.all(8),
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 6,
+                      horizontal: 10,
+                    ),
                     decoration: BoxDecoration(
                       color: Colors.green,
-                      borderRadius: BorderRadius.circular(6),
+                      border: Border.all(color: Colors.green, width: 2),
+                      borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
                       "Por: R\$${widget.precoPor.toStringAsFixed(2)}",
                       style: const TextStyle(
-                        color: Colors.white,
                         fontWeight: FontWeight.bold,
+                        color: Colors.white,
                       ),
                     ),
                   ),
                 ),
               ],
             ),
-
             const SizedBox(height: 8),
 
-            // Ações (like, comentários, share)
+            // Ações
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
@@ -188,16 +263,24 @@ class _PostCardState extends State<PostCard> {
                         color: _curtiu ? Colors.green : Colors.black,
                       ),
                       const SizedBox(width: 4),
-                      Text("$_likes"),
+                      Text(
+                        "$_likes",
+                        style: TextStyle(
+                          color: _curtiu ? Colors.green : Colors.black,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ],
                   ),
                 ),
-                Row(
-                  children: const [
-                    Icon(Icons.chat_bubble_outline),
-                    SizedBox(width: 4),
-                    Text("0"),
-                  ],
+                InkWell(
+                  onTap: _abrirComentarios,
+                  child: Row(
+                    children: const [
+                      Icon(Icons.chat_bubble_outline),
+                      SizedBox(width: 4),
+                    ],
+                  ),
                 ),
                 const Icon(Icons.share_outlined),
               ],
