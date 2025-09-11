@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:promodeal/models/user_model.dart';
+import 'package:promodeal/services/promocao_service.dart';
+import 'package:promodeal/services/user_service.dart';
+import 'package:promodeal/views/subviews/account_screen.dart';
+import 'package:promodeal/views/subviews/post_screen.dart';
 import 'package:promodeal/widget/post_card.dart';
-import '../models/user_model.dart';
-import '../services/user_service.dart';
+
 import 'package:supabase_flutter/supabase_flutter.dart';
+
 
 class FeedScreen extends StatefulWidget {
   const FeedScreen({super.key});
@@ -13,72 +18,105 @@ class FeedScreen extends StatefulWidget {
 
 class _FeedScreenState extends State<FeedScreen> {
   AppUser? _usuario;
-  int _currentIndex = 1; // por padrão começa no Feed
-
+  int _currentIndex = 1;
   final _userService = UserService();
+  final _promoService = PromocaoService();
+
+  List<Map<String, dynamic>> _promocoes = [];
+  bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    _carregarUsuario();
+    _carregarDados();
   }
 
-  Future<void> _carregarUsuario() async {
+  Future<void> _carregarDados() async {
     final supabase = Supabase.instance.client;
     final userAuth = supabase.auth.currentUser;
 
     if (userAuth != null) {
       final usuario = await _userService.buscarUsuarioPorId(userAuth.id);
-      setState(() => _usuario = usuario);
+      final promocoes = await _promoService.listarPromocoesComUsuarios();
+
+      setState(() {
+        _usuario = usuario;
+        _promocoes = promocoes;
+        _isLoading = false;
+      });
+    }
+  }
+
+  void _onNavTapped(int index) {
+
+    if(index == 0){
+       Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => ProfileScreen(idUsuario: _usuario!.id)),
+      ).then((_) => _carregarDados());
+    }else if (_usuario?.isComerciante == true && index == 3) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => const PublishPromotionScreen()),
+      ).then((_) => _carregarDados());
+    } else {
+      setState(() => _currentIndex = index);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    if (_usuario == null) {
+    if (_isLoading) {
       return const Scaffold(
         body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    if (_usuario == null) {
+      return const Scaffold(
+        body: Center(child: Text("Usuário não autenticado")),
       );
     }
 
     final isComerciante = _usuario!.isComerciante;
 
     return Scaffold(
-      body: ListView(
-        padding: const EdgeInsets.all(12),
-        children: [
-          PostCard(
-            loja: "Lojas XYZ",
-            data: "10/05/2025 07:00",
-            local: "Place-State",
-            descricao:
-                "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut et massa mi.",
-            precoDe: 100,
-            precoPor: 60,
-            tags: const ["Tag1", "Tag2", "Tag3"],
-          ),
-          const SizedBox(height: 12),
-          PostCard(
-            loja: "Lojas XYZ",
-            data: "10/05/2025 07:00",
-            local: "Place-State",
-            descricao:
-                "Aliquam in hendrerit urna. Pellentesque sit amet sapien fringilla.",
-            precoDe: 200,
-            precoPor: 150,
-            tags: const ["Tag1", "Tag2"],
-          ),
-        ],
+      appBar: AppBar(title: const Text("Promoções")),
+      body: RefreshIndicator(
+        onRefresh: _carregarDados,
+        child: ListView.builder(
+          padding: const EdgeInsets.all(12),
+          itemCount: _promocoes.length,
+          itemBuilder: (context, index) {
+            final promo = _promocoes[index];
+            final user = promo['usuarios'] ?? {};
+
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: PostCard(
+                idUsuario: user["id"],
+                idPromocao: promo['id'],
+                loja: user['nome'] ?? "Loja",
+                data: promo['data_publicacao'] ?? "Data não definida",
+                local: user['endereco'] ?? "Local não informado",
+                descricao: promo['descricao'] ?? "",
+                precoDe: (promo['preco_de'] as num).toDouble(),
+                precoPor: (promo['preco_por'] as num).toDouble(),
+                tags: (promo['tags'] as List<dynamic>)
+                    .map((t) => t.toString())
+                    .toList(),
+                fotoPerfilUrl: null, // TODO: integrar com avatar
+                fotoDaPromo: promo["imagem_url"],
+              ),
+            );
+          },
+        ),
       ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
-        selectedItemColor: Colors.green,
+        selectedItemColor: Colors.amber,
         unselectedItemColor: Colors.grey,
-        showUnselectedLabels: true,
-        onTap: (index) {
-          setState(() => _currentIndex = index);
-          // TODO: navegar entre telas reais
-        },
+        onTap: _onNavTapped,
         items: [
           const BottomNavigationBarItem(
             icon: Icon(Icons.person),
