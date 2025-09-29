@@ -33,7 +33,6 @@ class Promocao {
           ? DateTime.parse(map['data_publicacao'])
           : null,
       imagemUrl: map['imagem_url'] as String?,
-      likes: map['likes'] != null ? (map['likes'] as int) : 0,
     );
   }
 
@@ -47,7 +46,6 @@ class Promocao {
       'tags': tags,
       'data_publicacao': dataPublicacao?.toIso8601String(),
       'imagem_url': imagemUrl,
-      'likes': likes,
     };
   }
 }

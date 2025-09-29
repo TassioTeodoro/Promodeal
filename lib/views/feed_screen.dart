@@ -4,10 +4,10 @@ import 'package:promodeal/services/promocao_service.dart';
 import 'package:promodeal/services/user_service.dart';
 import 'package:promodeal/views/subviews/account_screen.dart';
 import 'package:promodeal/views/subviews/post_screen.dart';
+import 'package:promodeal/views/subviews/search_screen.dart';
 import 'package:promodeal/widget/post_card.dart';
 
 import 'package:supabase_flutter/supabase_flutter.dart';
-
 
 class FeedScreen extends StatefulWidget {
   const FeedScreen({super.key});
@@ -48,13 +48,21 @@ class _FeedScreenState extends State<FeedScreen> {
   }
 
   void _onNavTapped(int index) {
-
-    if(index == 0){
-       Navigator.push(
+    if (index == 0) {
+      Navigator.push(
         context,
-        MaterialPageRoute(builder: (_) => ProfileScreen(idUsuario: _usuario!.id)),
-      ).then((_) => _carregarDados());
-    }else if (_usuario?.isComerciante == true && index == 3) {
+        MaterialPageRoute(
+          builder: (_) => ProfileScreen(idUsuario: _usuario!.id),
+        ),
+      );
+    } else if (index == 2) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => SearchScreen()
+        ),
+      );
+    } else if (_usuario?.isComerciante == true && index == 3) {
       Navigator.push(
         context,
         MaterialPageRoute(builder: (_) => const PublishPromotionScreen()),
@@ -67,9 +75,7 @@ class _FeedScreenState extends State<FeedScreen> {
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      );
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
     if (_usuario == null) {
@@ -122,10 +128,7 @@ class _FeedScreenState extends State<FeedScreen> {
             icon: Icon(Icons.person),
             label: "Conta",
           ),
-          const BottomNavigationBarItem(
-            icon: Icon(Icons.feed),
-            label: "Feed",
-          ),
+          const BottomNavigationBarItem(icon: Icon(Icons.feed), label: "Feed"),
           const BottomNavigationBarItem(
             icon: Icon(Icons.search),
             label: "Busca",

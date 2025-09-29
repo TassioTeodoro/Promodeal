@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:promodeal/models/user_model.dart';
 import 'package:promodeal/services/user_service.dart';
+import 'package:promodeal/views/feed_screen.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class OnboardingScreen extends StatefulWidget {
@@ -49,7 +50,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("Configuração concluída com sucesso!")),
         );
-        // TODO: redirecionar para tela principal
+        Navigator.push(context, MaterialPageRoute(builder: (context) => FeedScreen()));
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(

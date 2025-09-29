@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:promodeal/services/promocao_service.dart';
+import 'package:promodeal/utils/postUtils.dart';
 import 'package:promodeal/views/subviews/account_screen.dart';
 import 'package:promodeal/views/subviews/post_detail_screen.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -136,7 +138,7 @@ class _PostCardState extends State<PostCard> {
                       context,
                       MaterialPageRoute(
                         builder: (_) =>
-                            ProfileScreen(idUsuario: widget.idPromocao),
+                            ProfileScreen(idUsuario: widget.idUsuario),
                       ),
                     );
                   },
@@ -282,7 +284,28 @@ class _PostCardState extends State<PostCard> {
                     ],
                   ),
                 ),
-                const Icon(Icons.share_outlined),
+                InkWell(
+                  onTap: () {
+                    Clipboard.setData(
+                      ClipboardData(
+                        text: PostUtils.fromPostCard(
+                          loja: widget.loja,
+                          data: widget.data,
+                          local: widget.local,
+                          descricao: widget.descricao,
+                          precoDe: widget.precoDe,
+                          precoPor: widget.precoPor,
+                          tags: widget.tags,
+                          fotoDaPromo: widget.fotoDaPromo,
+                        ),
+                      ),
+                    );
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text("Promoção Copiada para Área de Transferencia")),
+                    );
+                  },
+                  child: const Icon(Icons.share_outlined),
+                ),
               ],
             ),
           ],

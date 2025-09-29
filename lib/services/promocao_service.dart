@@ -8,6 +8,21 @@ class PromocaoService {
     await supabase.from('promocoes').insert(promocao.toMap());
   }
 
+Future<List<Promocao>> listarPromocoes() async {
+    final response = await supabase
+        .from('promocoes')
+        .select('*')
+        .order('data_publicacao', ascending: false);
+
+    final list = (response as List).map((map) {
+      final data = map as Map<String, dynamic>;
+
+      return Promocao.fromMap(data);
+    }).toList();
+
+    return list;
+  }
+
   Future<List<Map<String, dynamic>>> listarPromocoesComUsuarios() async {
     final response = await supabase
         .from('promocoes')
