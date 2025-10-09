@@ -158,7 +158,12 @@ class _PublishPromotionScreenState extends State<PublishPromotionScreen> {
                         CircleAvatar(
                           radius: 24,
                           backgroundColor: Colors.grey[400],
-                          child: const Icon(Icons.store, color: Colors.white),
+                          backgroundImage: _usuario?.pfpUrl != null
+                              ? NetworkImage(_usuario!.pfpUrl!)
+                              : null,
+                          child: _usuario?.pfpUrl == null
+                              ? const Icon(Icons.store, color: Colors.white)
+                              : null,
                         ),
                         const SizedBox(width: 12),
                         Text(

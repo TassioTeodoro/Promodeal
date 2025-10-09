@@ -37,7 +37,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
       if (response.user != null) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("Conta criada com sucesso! Verifique seu email.")),
+            const SnackBar(
+              content: Text("Conta criada com sucesso! Verifique seu email."),
+            ),
           );
           Navigator.pop(context); // volta para a tela anterior
         }
@@ -45,13 +47,13 @@ class _SignUpScreenState extends State<SignUpScreen> {
         throw "Erro desconhecido ao criar conta.";
       }
     } on AuthException catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Erro: ${e.message}")),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Erro: ${e.message}")));
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Erro inesperado: $e")),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Erro inesperado: $e")));
     } finally {
       setState(() => _isLoading = false);
     }
@@ -85,15 +87,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 const SizedBox(height: 40),
 
                 // Placeholder da Logo
-                Container(
-                  height: 120,
-                  width: 120,
-                  color: Colors.grey[300],
-                  alignment: Alignment.center,
-                  child: const Text(
-                    "Logo",
-                    style: TextStyle(color: Colors.black54),
-                  ),
+                Icon(Icons.price_check, color: Colors.green, size: 128),
+                Text(
+                  "Promodeal",
+                  style: TextStyle(color: Colors.green, fontSize: 18),
                 ),
 
                 const SizedBox(height: 40),
@@ -162,10 +159,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         ? const CircularProgressIndicator(color: Colors.white)
                         : const Text(
                             "Cadastrar",
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 16,
-                            ),
+                            style: TextStyle(color: Colors.white, fontSize: 16),
                           ),
                   ),
                 ),
@@ -174,6 +168,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     const Text("Já cadastrado ?"),
+                    SizedBox(width: 4,),
                     GestureDetector(
                       onTap: () {
                         Navigator.push(
@@ -190,7 +185,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                    )
+                    ),
                   ],
                 ),
               ],

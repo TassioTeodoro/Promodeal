@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:promodeal/models/promocao_model.dart';
 import 'package:promodeal/models/user_model.dart';
@@ -59,7 +58,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final souLogado = widget.idUsuario == _idLogado;
 
     return Scaffold(
-      appBar: AppBar(title: const Text("Conta"), backgroundColor: Colors.green, foregroundColor: Colors.white),
+      appBar: AppBar(
+        title: const Text("Conta"),
+        backgroundColor: Colors.green,
+        foregroundColor: Colors.white,
+      ),
       body: SingleChildScrollView(
         child: Column(
           children: [
@@ -74,8 +77,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   CircleAvatar(
                     radius: 30,
                     backgroundColor: Colors.grey[300],
-                    backgroundImage: null,
-                    child: null,
+                    backgroundImage: _usuario?.pfpUrl != null ? NetworkImage(_usuario!.pfpUrl!) : null,
+                    child:  _usuario?.pfpUrl == null ? const Icon(Icons.store, color: Colors.white) : null,
                   ),
                   const SizedBox(width: 12),
                   Expanded(
@@ -111,6 +114,36 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         if (atualizado) {
                           _carregarDados();
                         }
+                      },
+                    ),
+                  if (!souLogado)
+                    FutureBuilder<bool>(
+                      future: _userService.verificaSeSegue(widget.idUsuario),
+                      builder: (context, snapshot) {
+                        final seguindo = snapshot.data ?? false;
+                        return ElevatedButton(
+                          onPressed: () async {
+                            if (seguindo) {
+                              await _userService.deixarDeSeguirUsuario(
+                                widget.idUsuario,
+                              );
+                            } else {
+                              await _userService.seguirUsuario(
+                                widget.idUsuario,
+                              );
+                            }
+                            setState(() {});
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: seguindo
+                                ? Colors.grey[300]
+                                : Colors.green,
+                            foregroundColor: seguindo
+                                ? Colors.black
+                                : Colors.white,
+                          ),
+                          child: Text(seguindo ? "Seguindo" : "+ Seguir"),
+                        );
                       },
                     ),
                 ],
@@ -178,6 +211,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     precoPor: post.precoPor,
                     tags: post.tags,
                     fotoDaPromo: post.imagemUrl,
+                    fotoPerfilUrl: _usuario!.pfpUrl,
                   );
                 },
               ),

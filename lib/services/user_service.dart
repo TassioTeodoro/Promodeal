@@ -32,4 +32,39 @@ class UserService {
   Future<void> atualizarUsuario(AppUser user) async {
     await supabase.from('usuarios').update(user.toMap()).eq('id', user.id);
   }
+
+  Future<void> seguirUsuario(String seguidoId) async {
+    final seguidorId = supabase.auth.currentUser?.id;
+    if (seguidorId == null) throw Exception("Usuário não autenticado");
+
+    await supabase.from('seguidores').upsert({
+      'seguidor_id': seguidorId,
+      'seguido_id': seguidoId,
+    });
+  }
+
+  Future<void> deixarDeSeguirUsuario(String seguidoId) async {
+    final seguidorId = supabase.auth.currentUser?.id;
+    if (seguidorId == null) throw Exception("Usuário não autenticado");
+
+    await supabase
+        .from('seguidores')
+        .delete()
+        .match({'seguidor_id': seguidorId, 'seguido_id': seguidoId});
+  }
+
+  Future<bool> verificaSeSegue(String seguidoId) async {
+    final seguidorId = supabase.auth.currentUser?.id;
+    if (seguidorId == null) return false;
+
+    final response = await supabase
+        .from('seguidores')
+        .select('id')
+        .eq('seguidor_id', seguidorId)
+        .eq('seguido_id', seguidoId)
+        .maybeSingle();
+
+    return response != null;
+  }
+
 }

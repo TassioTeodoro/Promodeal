@@ -7,6 +7,7 @@ class AppUser {
   final String? cnpj;
   final String? endereco;
   final String? bio;
+  final String? pfpUrl;
 
   AppUser({
     required this.id,
@@ -15,7 +16,8 @@ class AppUser {
     required this.isComerciante,
     this.cnpj,
     this.endereco,
-    this.bio
+    this.bio,
+    this.pfpUrl,
   });
 
   factory AppUser.fromMap(Map<String, dynamic> map) {
@@ -26,7 +28,8 @@ class AppUser {
       isComerciante: map['is_comerciante'] ?? false,
       cnpj: map['cnpj'],
       endereco: map['endereco'],
-      bio: map['bio']
+      bio: map['bio'],
+      pfpUrl: map['pfp_url'],
     );
   }
 
@@ -38,7 +41,8 @@ class AppUser {
       'is_comerciante': isComerciante,
       'cnpj': cnpj,
       'endereco': endereco,
-      'bio':bio
+      'bio': bio,
+      'pfp_url': pfpUrl,
     };
   }
 }

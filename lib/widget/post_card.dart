@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:promodeal/services/promocao_service.dart';
+import 'package:promodeal/services/user_service.dart';
 import 'package:promodeal/utils/postUtils.dart';
 import 'package:promodeal/views/subviews/account_screen.dart';
 import 'package:promodeal/views/subviews/post_detail_screen.dart';
@@ -40,14 +41,19 @@ class PostCard extends StatefulWidget {
 
 class _PostCardState extends State<PostCard> {
   final _promoService = PromocaoService();
+  final _userService = UserService();
   int _likes = 0;
   bool _curtiu = false;
+  bool _seguindo = false;
+  bool _carregando = true;
   final user = Supabase.instance.client.auth.currentUser;
+  String? _idLogado;
 
   @override
   void initState() {
     super.initState();
     _carregarLikes();
+    _verificaFollow();
   }
 
   Future<void> _carregarLikes() async {
@@ -75,6 +81,30 @@ class _PostCardState extends State<PostCard> {
     }
 
     _carregarLikes(); // 🔹 recarrega likes e estado do botão
+  }
+
+  Future<void> _verificaFollow() async {
+    final supabase = Supabase.instance.client;
+    _idLogado = supabase.auth.currentUser?.id;
+
+    if (_idLogado != null && _idLogado != widget.idUsuario) {
+      final segue = await _userService.verificaSeSegue(widget.idUsuario);
+      setState(() {
+        _seguindo = segue;
+        _carregando = false;
+      });
+    } else {
+      setState(() => _carregando = false);
+    }
+  }
+
+  Future<void> _toggleFollow() async {
+    if (_seguindo) {
+      await _userService.deixarDeSeguirUsuario(widget.idUsuario);
+    } else {
+      await _userService.seguirUsuario(widget.idUsuario);
+    }
+    setState(() => _seguindo = !_seguindo);
   }
 
   void _abrirComentarios() {
@@ -301,7 +331,11 @@ class _PostCardState extends State<PostCard> {
                       ),
                     );
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text("Promoção Copiada para Área de Transferencia")),
+                      SnackBar(
+                        content: Text(
+                          "Promoção Copiada para Área de Transferencia",
+                        ),
+                      ),
                     );
                   },
                   child: const Icon(Icons.share_outlined),

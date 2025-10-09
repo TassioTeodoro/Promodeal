@@ -1,4 +1,3 @@
-import 'package:promodeal/models/promocao_model.dart';
 
 class PostUtils {
   static String fromPostCard({

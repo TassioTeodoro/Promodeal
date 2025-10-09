@@ -167,10 +167,40 @@ class _SearchScreenState extends State<SearchScreen> {
                             ..._resultUsers.map(
                               (u) => ListTile(
                                 leading: CircleAvatar(
-                                  child: const Icon(Icons.person),
+                                  backgroundImage: null,
                                 ),
                                 title: Text(u.nome),
                                 subtitle: Text(u.email),
+                                trailing: FutureBuilder<bool>(
+                                  future: _userService.verificaSeSegue(u.id),
+                                  builder: (context, snapshot) {
+                                    final seguindo = snapshot.data ?? false;
+                                    return TextButton(
+                                      style: TextButton.styleFrom(
+                                        backgroundColor: seguindo
+                                            ? Colors.grey[300]
+                                            : Colors.green,
+                                        foregroundColor: seguindo
+                                            ? Colors.black
+                                            : Colors.white,
+                                      ),
+                                      onPressed: () async {
+                                        if (seguindo) {
+                                          await _userService
+                                              .deixarDeSeguirUsuario(u.id);
+                                        } else {
+                                          await _userService.seguirUsuario(
+                                            u.id,
+                                          );
+                                        }
+                                        setState(() {});
+                                      },
+                                      child: Text(
+                                        seguindo ? "Seguindo" : "+ Seguir",
+                                      ),
+                                    );
+                                  },
+                                ),
                                 onTap: () {
                                   Navigator.push(
                                     context,

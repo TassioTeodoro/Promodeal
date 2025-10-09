@@ -12,6 +12,7 @@ Future<List<Promocao>> listarPromocoes() async {
     final response = await supabase
         .from('promocoes')
         .select('*')
+        .lte('data_publicacao', DateTime.now())
         .order('data_publicacao', ascending: false);
 
     final list = (response as List).map((map) {
@@ -26,7 +27,8 @@ Future<List<Promocao>> listarPromocoes() async {
   Future<List<Map<String, dynamic>>> listarPromocoesComUsuarios() async {
     final response = await supabase
         .from('promocoes')
-        .select('*, usuarios (id, nome, endereco)');
+        .select('*, usuarios (id, nome, endereco)')
+        .lte('data_publicacao', DateTime.now());
 
     return (response as List).map((e) => e as Map<String, dynamic>).toList();
   }
@@ -92,10 +94,38 @@ Future<List<Promocao>> listarPromocoes() async {
         .from('promocoes')
         .select('*')
         .eq('id_usuario', idUsuario)
+        .lte('data_publicacao', DateTime.now())
         .order('data_publicacao', ascending: false);
 
     return (response as List)
         .map((map) => Promocao.fromMap(map as Map<String, dynamic>))
         .toList();
+  }
+
+  Future<List<Map<String,dynamic>>> listarFeedPersonalizado() async {
+    final idLogado = supabase.auth.currentUser?.id;
+    if (idLogado == null) return [];
+
+    // 🔹 Primeiro, busca IDs das pessoas que o usuário segue
+    final seguidos = await supabase
+        .from('seguidores')
+        .select('seguido_id')
+        .eq('seguidor_id', idLogado);
+
+    final idsSeguidos =
+        (seguidos as List).map((e) => e['seguido_id'] as String).toList();
+
+    // 🔹 Se o usuário ainda não segue ninguém, retorna todos os posts
+    final filtro = idsSeguidos.isNotEmpty ? 'in' : 'neq';
+    final valor = idsSeguidos.isNotEmpty ? idsSeguidos : [idLogado];
+
+    final response = await supabase
+        .from('promocoes')
+        .select('*, usuarios (id, nome, email, endereco, pfp_url)')
+        .filter('id_usuario', filtro, valor)
+        .lte('data_publicacao', DateTime.now())
+        .order('data_publicacao', ascending: false);
+
+    return response;
   }
 }

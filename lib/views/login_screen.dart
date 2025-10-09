@@ -62,13 +62,13 @@ class _LoginScreenState extends State<LoginScreen> {
         throw "Credenciais inválidas";
       }
     } on AuthException catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Erro: ${e.message}")),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Erro: ${e.message}")));
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Erro inesperado: $e")),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Erro inesperado: $e")));
     } finally {
       setState(() => _isLoading = false);
     }
@@ -100,16 +100,8 @@ class _LoginScreenState extends State<LoginScreen> {
                 const SizedBox(height: 40),
 
                 // Placeholder da Logo
-                Container(
-                  height: 120,
-                  width: 120,
-                  color: Colors.grey[300],
-                  alignment: Alignment.center,
-                  child: const Text(
-                    "Logo",
-                    style: TextStyle(color: Colors.black54),
-                  ),
-                ),
+                Icon(Icons.price_check, color: Colors.green, size: 128),
+                Text("Promodeal", style: TextStyle(color: Colors.green, fontSize: 18)),
 
                 const SizedBox(height: 40),
 
@@ -160,10 +152,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         ? const CircularProgressIndicator(color: Colors.white)
                         : const Text(
                             "Login",
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 16,
-                            ),
+                            style: TextStyle(color: Colors.white, fontSize: 16),
                           ),
                   ),
                 ),
@@ -204,7 +193,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                    )
+                    ),
                   ],
                 ),
               ],
@@ -222,8 +211,6 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      body: FeedScreen()
-    );
+    return const Scaffold(body: FeedScreen());
   }
 }

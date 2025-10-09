@@ -1,6 +1,10 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:promodeal/models/comentario_model.dart';
+import 'package:promodeal/models/user_model.dart';
 import 'package:promodeal/services/comentario_service.dart';
+import 'package:promodeal/services/user_service.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:uuid/v4.dart';
 
@@ -39,7 +43,7 @@ class PostDetailScreen extends StatefulWidget {
 class _PostDetailScreenState extends State<PostDetailScreen> {
   final _comentarioService = ComentarioService();
   final _controller = TextEditingController();
-  List<Comentario> _comentarios = [];
+  List<Map<String, dynamic>> _comentarios = [];
   bool _loading = true;
   bool _enviando = false;
 
@@ -50,20 +54,22 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
   }
 
   Future<void> _carregarComentarios() async {
-    final lista = await _comentarioService.listarComentariosPorPromocao(widget.idPromocao);
+    final comentarios =
+        await _comentarioService.listarComentariosComUsuario(widget.idPromocao);
     setState(() {
-      _comentarios = lista;
+      _comentarios = comentarios;
       _loading = false;
     });
   }
-
   Future<void> _enviarComentario() async {
     final supabase = Supabase.instance.client;
     final user = supabase.auth.currentUser;
 
     if (user == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Você precisa estar logado para comentar")),
+        const SnackBar(
+          content: Text("Você precisa estar logado para comentar"),
+        ),
       );
       return;
     }
@@ -89,9 +95,9 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
 
       await _carregarComentarios(); // 🔹 recarrega lista após salvar
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Erro ao enviar comentário: $e")),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Erro ao enviar comentário: $e")));
     } finally {
       setState(() => _enviando = false);
     }
@@ -141,39 +147,56 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(widget.loja,
-                                style: const TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold)),
-                            Text(widget.data,
-                                style: const TextStyle(color: Colors.grey)),
+                            Text(
+                              widget.loja,
+                              style: const TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            Text(
+                              widget.data,
+                              style: const TextStyle(color: Colors.grey),
+                            ),
                           ],
                         ),
                       ),
-                      Text(widget.local,
-                          style: const TextStyle(color: Colors.grey)),
+                      Text(
+                        widget.local,
+                        style: const TextStyle(color: Colors.grey),
+                      ),
                     ],
                   ),
                   const SizedBox(height: 12),
                   Text(widget.descricao),
                   const SizedBox(height: 8),
-                  Text("De: R\$${widget.precoDe.toStringAsFixed(2)}",
-                      style: const TextStyle(
-                        decoration: TextDecoration.lineThrough,
-                        color: Colors.grey,
-                      )),
-                  Text("Por: R\$${widget.precoPor.toStringAsFixed(2)}",
-                      style: const TextStyle(
-                          fontWeight: FontWeight.bold, color: Colors.green)),
+                  Text(
+                    "De: R\$${widget.precoDe.toStringAsFixed(2)}",
+                    style: const TextStyle(
+                      decoration: TextDecoration.lineThrough,
+                      color: Colors.grey,
+                    ),
+                  ),
+                  Text(
+                    "Por: R\$${widget.precoPor.toStringAsFixed(2)}",
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.green,
+                    ),
+                  ),
                   const SizedBox(height: 8),
                   Wrap(
                     spacing: 6,
                     children: widget.tags
-                        .map((t) => Chip(
-                              label: Text(t,
-                                  style: const TextStyle(color: Colors.white)),
-                              backgroundColor: Colors.green,
-                            ))
+                        .map(
+                          (t) => Chip(
+                            label: Text(
+                              t,
+                              style: const TextStyle(color: Colors.white),
+                            ),
+                            backgroundColor: Colors.green,
+                          ),
+                        )
                         .toList(),
                   ),
                 ],
@@ -186,16 +209,37 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
             child: _loading
                 ? const Center(child: CircularProgressIndicator())
                 : ListView.builder(
-                    itemCount: _comentarios.length,
-                    itemBuilder: (context, index) {
-                      final c = _comentarios[index];
-                      return ListTile(
-                        leading: const Icon(Icons.person),
-                        title: Text(c.conteudo),
-                        subtitle: Text(c.createdAt.toString()),
-                      );
-                    },
-                  ),
+                        itemCount: _comentarios.length,
+                        itemBuilder: (context, index) {
+                          final c = _comentarios[index];
+                          final user = c['usuarios'];
+                          final nome = user?['nome'] ?? 'Usuário';
+                          final foto = user?['pfp_url'];
+
+                          return ListTile(
+                            leading: CircleAvatar(
+                              backgroundImage: foto != null
+                                  ? NetworkImage(foto)
+                                  : const AssetImage('assets/avatar_placeholder.png')
+                                      as ImageProvider,
+                              radius: 22,
+                            ),
+                            title: Text(
+                              nome,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 14,
+                              ),
+                            ),
+                            subtitle: Text(
+                              c['texto'] ?? '',
+                              style: const TextStyle(fontSize: 13),
+                            ),
+                            contentPadding:
+                                const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                          );
+                        },
+                      ),
           ),
 
           // Campo para enviar comentário
@@ -221,7 +265,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                 ),
               ],
             ),
-          )
+          ),
         ],
       ),
     );

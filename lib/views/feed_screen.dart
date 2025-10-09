@@ -37,7 +37,7 @@ class _FeedScreenState extends State<FeedScreen> {
 
     if (userAuth != null) {
       final usuario = await _userService.buscarUsuarioPorId(userAuth.id);
-      final promocoes = await _promoService.listarPromocoesComUsuarios();
+      final promocoes = await _promoService.listarFeedPersonalizado();
 
       setState(() {
         _usuario = usuario;
@@ -111,7 +111,7 @@ class _FeedScreenState extends State<FeedScreen> {
                 tags: (promo['tags'] as List<dynamic>)
                     .map((t) => t.toString())
                     .toList(),
-                fotoPerfilUrl: null, // TODO: integrar com avatar
+                fotoPerfilUrl: user["pfp_url"],
                 fotoDaPromo: promo["imagem_url"],
               ),
             );
