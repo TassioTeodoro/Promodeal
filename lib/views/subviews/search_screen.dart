@@ -167,7 +167,7 @@ class _SearchScreenState extends State<SearchScreen> {
                             ..._resultUsers.map(
                               (u) => ListTile(
                                 leading: CircleAvatar(
-                                  backgroundImage: null,
+                                  backgroundImage: u.pfpUrl != null ? NetworkImage(u.pfpUrl!) : null,
                                 ),
                                 title: Text(u.nome),
                                 subtitle: Text(u.email),
@@ -245,8 +245,7 @@ class _SearchScreenState extends State<SearchScreen> {
                                 tags: (promo['tags'] as List<dynamic>)
                                     .map((t) => t.toString())
                                     .toList(),
-                                fotoPerfilUrl:
-                                    null, // TODO: integrar com avatar
+                                fotoPerfilUrl: user["pfp_url"],
                                 fotoDaPromo: promo["imagem_url"],
                               );
                             }),

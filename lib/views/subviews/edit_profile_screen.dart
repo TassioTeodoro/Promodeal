@@ -21,7 +21,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
   late TextEditingController _bioController;
   late TextEditingController _enderecoController;
 
-  String? _fotoUrl;
+  String? _fotoUrl = "";
   bool _uploading = false;
 
   @override

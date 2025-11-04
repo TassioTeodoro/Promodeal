@@ -27,7 +27,7 @@ Future<List<Promocao>> listarPromocoes() async {
   Future<List<Map<String, dynamic>>> listarPromocoesComUsuarios() async {
     final response = await supabase
         .from('promocoes')
-        .select('*, usuarios (id, nome, endereco)')
+        .select('*, usuarios (id, nome, endereco, pfp_url)')
         .lte('data_publicacao', DateTime.now());
 
     return (response as List).map((e) => e as Map<String, dynamic>).toList();
