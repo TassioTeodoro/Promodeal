@@ -186,11 +186,12 @@ class _PostCardState extends State<PostCard> {
                         widget.data,
                         style: const TextStyle(color: Colors.grey),
                       ),
+                      Text(widget.local, style: const TextStyle(color: Colors.grey)),
                     ],
                   ),
                 ),
                 const Spacer(),
-                Text(widget.local, style: const TextStyle(color: Colors.grey)),
+                
               ],
             ),
 
