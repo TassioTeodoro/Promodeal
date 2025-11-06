@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:promodeal/models/promocao_model.dart';
 import 'package:promodeal/models/user_model.dart';
+import 'package:promodeal/services/supabase_service.dart';
 import 'package:promodeal/services/user_service.dart';
 import 'package:promodeal/services/promocao_service.dart';
+import 'package:promodeal/views/login_screen.dart';
 import 'package:promodeal/views/subviews/edit_profile_screen.dart';
 import 'package:promodeal/widget/post_card.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -77,8 +79,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   CircleAvatar(
                     radius: 30,
                     backgroundColor: Colors.grey[300],
-                    backgroundImage: _usuario?.pfpUrl != null ? NetworkImage(_usuario!.pfpUrl!) : null,
-                    child:  _usuario?.pfpUrl == null ? const Icon(Icons.store, color: Colors.white) : null,
+                    backgroundImage: _usuario?.pfpUrl != null
+                        ? NetworkImage(_usuario!.pfpUrl!)
+                        : null,
+                    child: _usuario?.pfpUrl == null
+                        ? const Icon(Icons.store, color: Colors.white)
+                        : null,
                   ),
                   const SizedBox(width: 12),
                   Expanded(
@@ -116,6 +122,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         }
                       },
                     ),
+                  IconButton(
+                    icon: const Icon(Icons.logout, color: Color.fromARGB(255, 255, 0, 0)),
+                    onPressed: () async {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const LoginScreen()),
+                      );
+                    },
+                  ),
                   if (!souLogado)
                     FutureBuilder<bool>(
                       future: _userService.verificaSeSegue(widget.idUsuario),
