@@ -239,6 +239,3 @@ build/web/
 * **Tassio Henrique Teodoro Pereira** – Desenvolvedor
 * **André Martins** – Orientador do Projeto
 
----
-
-Se quiser, posso adicionar diagramas, instruções mais detalhadas para Supabase, organização das pastas do projeto, ou um guia para deploy.
